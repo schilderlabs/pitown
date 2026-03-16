@@ -1,6 +1,6 @@
 {
 	"name": "@schilderlabs/pitown",
-	"version": "0.1.3",
+	"version": "0.2.0",
 	"description": "Globally installable CLI for Pi Town",
 	"type": "module",
 	"bin": {
