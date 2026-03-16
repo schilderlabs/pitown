@@ -1,7 +1,6 @@
 # Pi Town
 
-<img width="1536" height="1024" alt="pitown" src="https://github.com/user-attachments/assets/7cc303b7-ae9a-4fa7-ac8d-a68588cc5abb" />
-
+<img width="750" height="500" alt="pitown" src="https://github.com/user-attachments/assets/7cc303b7-ae9a-4fa7-ac8d-a68588cc5abb" />
 
 
 **Multi-agent orchestration system for Pi**
