@@ -22,6 +22,35 @@ describe("runController", () => {
 		).toThrowError(`Pi Town could not execute the configured Pi command: ${missingCommand}`)
 	})
 
+	it("surfaces a clear auth hint when pi is installed but not authenticated", () => {
+		const cwd = mkdtempSync(join(tmpdir(), "pi-town-cwd-"))
+		const artifactsDir = join(cwd, "state")
+		const fakePiPath = join(cwd, "fake-pi-auth.sh")
+		writeFileSync(
+			fakePiPath,
+			[
+				"#!/bin/sh",
+				'printf "No models available.\\n" >&2',
+				"exit 1",
+			].join("\n"),
+			"utf-8",
+		)
+		chmodSync(fakePiPath, 0o755)
+
+		const result = runController({
+			artifactsDir,
+			cwd,
+			goal: "continue from current scaffold state",
+			mode: "single-pi",
+			piCommand: fakePiPath,
+		})
+
+		expect(result.summary.success).toBe(false)
+		expect(result.summary.message).toContain("Pi appears to be installed but not authenticated or configured")
+		expect(result.summary.message).toContain('pi -p "hello"')
+		expect(result.summary.message).toContain("run `pi` and use `/login`")
+	})
+
 	it("performs one pi invocation and writes durable run artifacts", () => {
 		const cwd = mkdtempSync(join(tmpdir(), "pi-town-cwd-"))
 		const artifactsDir = join(cwd, "state")

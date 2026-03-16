@@ -3,6 +3,7 @@ import { join } from "node:path"
 import { appendJsonl } from "./events.js"
 import { acquireRepoLease } from "./lease.js"
 import { computeMetrics } from "./metrics.js"
+import { createPiAuthHelpMessage, detectPiAuthFailure } from "./pi.js"
 import { createRepoSlug, getCurrentBranch, getRepoIdentity, getRepoRoot } from "./repo.js"
 import { assertCommandAvailable, runCommandSync } from "./shell.js"
 import type { ControllerRunResult, PiInvocationRecord, RunManifest, RunOptions, RunSummary } from "./types.js"
@@ -115,6 +116,8 @@ function createSummary(input: {
 	runId: string
 	mode: "single-pi"
 	exitCode: number
+	stdout: string
+	stderr: string
 	recommendedPlanDir: string | null
 }): RunSummary {
 	const success = input.exitCode === 0
@@ -122,13 +125,17 @@ function createSummary(input: {
 		input.recommendedPlanDir === null
 			? ""
 			: ` No plan path was configured. Recommended private plans location: ${input.recommendedPlanDir}.`
+	const authHelp =
+		success || !detectPiAuthFailure(input.stderr, input.stdout) ? "" : ` ${createPiAuthHelpMessage()}`
 
 	return {
 		runId: input.runId,
 		mode: input.mode,
 		createdAt: new Date().toISOString(),
 		success,
-		message: success ? `Pi invocation completed.${recommendation}` : `Pi invocation failed.${recommendation}`,
+		message: success
+			? `Pi invocation completed.${recommendation}`
+			: `Pi invocation failed.${authHelp}${recommendation}`,
 		piExitCode: input.exitCode,
 		recommendedPlanDir: input.recommendedPlanDir,
 	}
@@ -240,6 +247,8 @@ export function runController(options: RunOptions): ControllerRunResult {
 			runId,
 			mode,
 			exitCode: piInvocation.exitCode,
+			stdout: piResult.stdout,
+			stderr: piResult.stderr,
 			recommendedPlanDir,
 		})
 		const finalManifest: RunManifest = {

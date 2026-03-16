@@ -17,16 +17,19 @@ afterEach(() => {
 	else process.env.PATH = originalPath
 })
 
-function createFakePi(binDir: string) {
+function createFakePi(binDir: string, options?: { stdout?: string; stderr?: string; exitCode?: number }) {
 	const piPath = join(binDir, "pi")
 	mkdirSync(binDir, { recursive: true })
+	const stdout = options?.stdout ?? "pi cli stdout\n"
+	const stderr = options?.stderr ?? "pi cli stderr\n"
+	const exitCode = options?.exitCode ?? 0
 	writeFileSync(
 		piPath,
 		[
 			"#!/bin/sh",
-			'printf "pi cli stdout\\n"',
-			'printf "pi cli stderr\\n" >&2',
-			"exit 0",
+			`printf ${JSON.stringify(stdout)}`,
+			`printf ${JSON.stringify(stderr)} >&2`,
+			`exit ${exitCode}`,
 		].join("\n"),
 		"utf-8",
 	)
@@ -90,6 +93,23 @@ describe("runTown", () => {
 		expect(output.join("\n")).toContain("[pitown] status")
 		expect(output.join("\n")).toContain(`- latest run: ${result.runId}`)
 		expect(output.join("\n")).toContain(`- repo root: ${resolve(cliRepo)}`)
+	})
+
+	it("surfaces Pi auth guidance when Pi is installed but not configured", () => {
+		const home = mkdtempSync(join(tmpdir(), "pi-town-home-"))
+		process.env.HOME = home
+
+		const binDir = join(home, "bin")
+		createFakePi(binDir, { stderr: "No models available.\n", exitCode: 1 })
+		process.env.PATH = `${binDir}:${originalPath ?? ""}`
+
+		const repo = join(home, "repo")
+		mkdirSync(repo, { recursive: true })
+
+		const output = captureLogs(() => runTown(["--repo", repo]))
+		expect(output.join("\n")).toContain("- pi exit code: 1")
+		expect(output.join("\n")).toContain("Pi appears to be installed but not authenticated or configured")
+		expect(output.join("\n")).toContain('pi -p "hello"')
 	})
 
 	it("runs without a configured plan path and recommends a private plans location", () => {

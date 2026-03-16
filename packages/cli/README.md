@@ -19,6 +19,7 @@ npm install -g @mariozechner/pi-coding-agent
 Verify Pi first:
 
 ```bash
+pitown doctor
 pi -p "hello"
 ```
 

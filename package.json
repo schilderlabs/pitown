@@ -16,6 +16,7 @@
 		"syncpack:check": "syncpack lint",
 		"syncpack:fix": "syncpack fix-mismatches && syncpack format",
 		"test": "turbo test",
+		"town:doctor": "tsx packages/cli/src/doctor.ts",
 		"town:run": "tsx packages/cli/src/run.ts",
 		"town:status": "tsx packages/cli/src/status.ts",
 		"town:watch": "tsx packages/cli/src/watch.ts",

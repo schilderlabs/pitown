@@ -23,6 +23,7 @@ describe("runCli", () => {
 
 		expect(longHelp.join("\n")).toContain("pitown")
 		expect(longHelp.join("\n")).toContain("pitown run [--repo <path>] [--plan <path>] [--goal <text>]")
+		expect(longHelp.join("\n")).toContain("pitown doctor")
 		expect(subcommandHelp.join("\n")).toContain("pitown status [--repo <path>]")
 	})
 })

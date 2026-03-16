@@ -72,6 +72,16 @@ pi -p "hello"
 
 ## Quick start
 
+### Check your Pi setup
+
+Before running Pi Town work, verify Pi is ready:
+
+```bash
+pitown doctor
+```
+
+If Pi is installed but not authenticated yet, authenticate it first by making `pi -p "hello"` work.
+
 ### Run from source today
 
 ```bash

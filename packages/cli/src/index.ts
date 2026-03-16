@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { runDoctor } from "./doctor.js"
 import { isDirectExecution } from "./entrypoint.js"
 import { runTown } from "./run.js"
 import { showTownStatus } from "./status.js"
@@ -14,6 +15,7 @@ export function printHelp() {
 			"  pitown run [--repo <path>] [--plan <path>] [--goal <text>]",
 			"  pitown status [--repo <path>]",
 			"  pitown watch [--repo <path>]",
+			"  pitown doctor",
 			"  pitown help",
 			"  pitown --help",
 		].join("\n"),
@@ -41,6 +43,11 @@ export function runCli(argv = process.argv.slice(2)) {
 		case "watch":
 			watchTown(args)
 			break
+		case "doctor": {
+			const result = runDoctor()
+			if (!result.ok) process.exitCode = 1
+			break
+		}
 		default:
 			console.log(`Unknown command: ${command}`)
 			printHelp()

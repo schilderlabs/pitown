@@ -87,6 +87,7 @@ export function runTown(argv = process.argv.slice(2)): ControllerRunResult {
 	console.log(`- artifacts: ${result.runDir}`)
 	console.log(`- latest metrics: ${latestPointer.metricsPath}`)
 	console.log(`- pi exit code: ${result.piInvocation.exitCode}`)
+	if (!result.summary.success) console.log(`- note: ${result.summary.message}`)
 	if (result.manifest.planPath) console.log(`- plan path: ${result.manifest.planPath}`)
 	if (result.summary.recommendedPlanDir) console.log(`- recommended plans: ${result.summary.recommendedPlanDir}`)
 
