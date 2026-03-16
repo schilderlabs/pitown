@@ -44,23 +44,11 @@ The goal is to come back to understandable progress, durable evidence, and a sys
 
 ## Why Pi Town exists
 
-Pi Town takes inspiration from Gas Town's durable, local-first orchestration model, but intentionally does **not** try to copy Gas Town's implementation stack.
-
 Pi Town is:
-- **Pi-native** instead of Claude Code-native
-- **TypeScript/Node** instead of Go
-- **local filesystem-first** instead of requiring heavier infrastructure
+- **Pi-native**
+- implemented in **TypeScript/Node**
+- **local filesystem-first**
 - **repo-agnostic** by default, using `--repo` and `--plan`
-- **single-run / single-session** in the MVP instead of multi-agent from day one
-
-For the current MVP, Pi Town is intentionally simple:
-- one CLI: `pitown`
-- one target repo at a time
-- one real Pi subprocess invocation
-- one durable local run record
-- no Docker backend yet
-- no OpenViking dependency yet
-- no multi-agent system yet
 
 ## Quick start
 
