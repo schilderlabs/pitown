@@ -1,0 +1,8 @@
+{
+	"extends": "../typescript-config/strict-jit.json",
+	"compilerOptions": {
+		"outDir": "./dist",
+		"rootDir": ".."
+	},
+	"include": ["src/**/*"]
+}

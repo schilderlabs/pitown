@@ -1,0 +1,52 @@
+{
+	"name": "@schilderlabs/pitown",
+	"version": "0.1.0",
+	"description": "Globally installable CLI for Pi Town",
+	"type": "module",
+	"bin": {
+		"pitown": "./dist/index.mjs"
+	},
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.mts"
+		}
+	},
+	"types": "./dist/index.d.mts",
+	"files": ["dist", "README.md"],
+	"engines": {
+		"node": ">=24"
+	},
+	"scripts": {
+		"build": "tsdown",
+		"lint": "eslint .",
+		"test": "vitest run --passWithNoTests",
+		"town:run": "tsx src/run.ts",
+		"town:status": "tsx src/status.ts",
+		"town:watch": "tsx src/watch.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@schilderlabs/pitown-core": "workspace:*"
+	},
+	"devDependencies": {
+		"eslint": "9.39.3",
+		"tsdown": "0.20.3",
+		"tsx": "4.21.0",
+		"typescript": "5.9.2",
+		"vitest": "4.0.18"
+	},
+	"keywords": ["pitown", "pi-town", "cli", "orchestration", "automation"],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/schilderlabs/pitown.git"
+	},
+	"homepage": "https://github.com/schilderlabs/pitown#readme",
+	"bugs": {
+		"url": "https://github.com/schilderlabs/pitown/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"license": "MIT"
+}

@@ -1,0 +1,50 @@
+{
+	"name": "@schilderlabs/pitown-package",
+	"version": "0.1.0",
+	"description": "Pi package resources for Pi Town",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"types": "./dist/index.d.mts"
+		}
+	},
+	"types": "./dist/index.d.mts",
+	"files": ["dist", "pi", "README.md"],
+	"engines": {
+		"node": ">=24"
+	},
+	"keywords": ["pitown", "pi-package", "pi", "agents", "orchestration", "night-shift"],
+	"pi": {
+		"extensions": ["./pi/extensions"],
+		"prompts": ["./pi/prompts"]
+	},
+	"scripts": {
+		"build": "tsdown",
+		"lint": "eslint .",
+		"test": "vitest run --passWithNoTests",
+		"typecheck": "tsc --noEmit"
+	},
+	"peerDependencies": {
+		"@mariozechner/pi-coding-agent": "*"
+	},
+	"devDependencies": {
+		"@mariozechner/pi-coding-agent": "0.58.3",
+		"eslint": "9.39.3",
+		"tsdown": "0.20.3",
+		"typescript": "5.9.2",
+		"vitest": "4.0.18"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/schilderlabs/pitown.git"
+	},
+	"homepage": "https://github.com/schilderlabs/pitown#readme",
+	"bugs": {
+		"url": "https://github.com/schilderlabs/pitown/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"license": "MIT"
+}

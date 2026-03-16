@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Turbo
+.turbo/
+
+# Runtime artifacts
+artifacts/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Local AI/tooling state
+.agent/
+.agents/
+.kiro/
+.qwen/
+.claude/settings.local.json
+.claude/skills/
+.pi/skills/
+skills/*
+!skills/README.md
+!skills/public/
+!skills/public/**
+
+# OS
+.DS_Store
+Thumbs.db

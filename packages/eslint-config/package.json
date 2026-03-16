@@ -1,0 +1,24 @@
+{
+	"name": "@schilderlabs/eslint-config",
+	"private": true,
+	"version": "0.1.0",
+	"type": "module",
+	"exports": {
+		"./base": "./base.js"
+	},
+	"peerDependencies": {
+		"eslint": "^9.39.3"
+	},
+	"devDependencies": {
+		"@eslint/js": "9.39.3",
+		"eslint": "9.39.3",
+		"eslint-config-prettier": "10.1.2",
+		"eslint-plugin-only-warn": "1.1.0",
+		"eslint-plugin-turbo": "2.5.0",
+		"typescript": "5.9.2",
+		"typescript-eslint": "8.46.0"
+	},
+	"description": "Shared ESLint configuration for the Pi Town workspace",
+	"files": ["*.js"],
+	"license": "MIT"
+}
