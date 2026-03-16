@@ -75,7 +75,7 @@ export function snapshotBoard(artifactsDir: string): BoardSnapshot {
 
 	const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.status === "completed")
 	const allRemainingTasksBlocked =
-		tasks.length > 0 && tasks.every((task) => task.status === "completed" || task.status === "blocked")
+		tasks.length > 0 && tasks.every((task) => task.status === "completed" || task.status === "blocked" || task.status === "aborted")
 
 	const mayor = agents.find((agent) => agent.agentId === "mayor")
 	const mayorBlocked = mayor?.blocked === true

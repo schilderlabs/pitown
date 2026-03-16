@@ -6,6 +6,7 @@ import {
 	queueAgentMessage,
 	readAgentMessages,
 	readAgentState,
+	stopManagedAgents,
 	updateAgentStatus,
 } from "@schilderlabs/pitown-core"
 import { readPiTownMayorPrompt, resolvePiTownExtensionPath } from "#pitown-package-api"
@@ -15,6 +16,7 @@ type TownToolName =
 	| "pitown_delegate"
 	| "pitown_message_agent"
 	| "pitown_peek_agent"
+	| "pitown_stop"
 	| "pitown_update_status"
 
 interface TownAgentContext {
@@ -32,10 +34,11 @@ const ROLE_STATUS = Type.Union([
 	Type.Literal("blocked"),
 	Type.Literal("completed"),
 	Type.Literal("failed"),
+	Type.Literal("stopped"),
 ])
 
 const toolPermissions: Record<string, TownToolName[]> = {
-	mayor: ["pitown_board", "pitown_delegate", "pitown_message_agent", "pitown_peek_agent", "pitown_update_status"],
+	mayor: ["pitown_board", "pitown_delegate", "pitown_message_agent", "pitown_peek_agent", "pitown_stop", "pitown_update_status"],
 	worker: ["pitown_board", "pitown_message_agent", "pitown_peek_agent", "pitown_update_status"],
 	reviewer: ["pitown_board", "pitown_message_agent", "pitown_peek_agent", "pitown_update_status"],
 	"docs-keeper": ["pitown_board", "pitown_message_agent", "pitown_peek_agent", "pitown_update_status"],
@@ -173,7 +176,7 @@ export function registerTownTools(pi: ExtensionAPI) {
 				notifiedCompletions.add(w.agentId)
 				ctx.ui.notify(`✓ ${w.agentId} finished: ${w.lastMessage ?? w.task ?? "done"}`, "success")
 			}
-			if ((w.status === "blocked" || w.status === "failed") && !notifiedCompletions.has(w.agentId)) {
+			if ((w.status === "blocked" || w.status === "failed" || w.status === "stopped") && !notifiedCompletions.has(w.agentId)) {
 				notifiedCompletions.add(w.agentId)
 				ctx.ui.notify(`✗ ${w.agentId} blocked: ${w.lastMessage ?? "needs attention"}`, "warning")
 			}
@@ -181,7 +184,7 @@ export function registerTownTools(pi: ExtensionAPI) {
 
 		const running = workers.filter((a) => a.status === "running" || a.status === "starting").length
 		const done = workers.filter((a) => a.status === "idle" || a.status === "completed").length
-		const blocked = workers.filter((a) => a.status === "blocked" || a.status === "failed").length
+		const blocked = workers.filter((a) => a.status === "blocked" || a.status === "failed" || a.status === "stopped").length
 
 		const parts: string[] = []
 		if (running > 0) parts.push(`${running} running`)
@@ -319,6 +322,61 @@ export function registerTownTools(pi: ExtensionAPI) {
 	})
 
 	pi.registerTool({
+		name: "pitown_stop",
+		label: "Pi Town Stop",
+		description: "Stop a managed Pi Town agent, or stop the other agents in this repo",
+		parameters: Type.Object({
+			scope: Type.Optional(Type.Union([Type.Literal("repo"), Type.Literal("agent")])),
+			agentId: Type.Optional(Type.String({ description: "Required when scope is agent" })),
+			force: Type.Optional(Type.Boolean({ description: "Escalate to SIGKILL if SIGTERM does not stop the process" })),
+			reason: Type.Optional(Type.String({ description: "Optional stop reason recorded on the board" })),
+		}),
+		async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+			const context = requireTownContext(ctx)
+			assertPermission(context, "pitown_stop")
+			const input = params as {
+				scope?: "repo" | "agent"
+				agentId?: string
+				force?: boolean
+				reason?: string
+			}
+			const scope = input.scope ?? "repo"
+
+			if (scope === "agent" && !input.agentId) throw new Error("pitown_stop requires agentId when scope=agent")
+			if (scope === "agent" && input.agentId === context.agentId) {
+				throw new Error("pitown_stop may not stop the current live mayor session; use the CLI for self-stop")
+			}
+
+			const result = stopManagedAgents({
+				artifactsDir: context.artifactsDir,
+				agentId: scope === "agent" ? input.agentId! : null,
+				excludeAgentIds: scope === "repo" ? [context.agentId] : [],
+				actorId: context.agentId,
+				reason: input.reason ?? `Stopped by ${context.agentId} via pitown_stop`,
+				force: input.force ?? false,
+			})
+
+			return {
+				content: [
+					{
+						type: "text",
+						text:
+							scope === "agent"
+								? `Stopped ${input.agentId}. Agents updated: ${result.stoppedAgents}. Signaled processes: ${result.signaledProcesses}.`
+								: `Stopped repo agents except ${context.agentId}. Agents updated: ${result.stoppedAgents}. Signaled processes: ${result.signaledProcesses}.`,
+					},
+				],
+				details: {
+					scope,
+					agentId: input.agentId ?? null,
+					stoppedAgents: result.stoppedAgents,
+					signaledProcesses: result.signaledProcesses,
+				},
+			}
+		},
+	})
+
+	pi.registerTool({
 		name: "pitown_update_status",
 		label: "Pi Town Update Status",
 		description: "Update this Pi Town agent's durable status on the board",
@@ -332,7 +390,7 @@ export function registerTownTools(pi: ExtensionAPI) {
 			const context = requireTownContext(ctx)
 			assertPermission(context, "pitown_update_status")
 			const input = params as {
-				status: "queued" | "running" | "idle" | "blocked" | "completed" | "failed"
+				status: "queued" | "running" | "idle" | "blocked" | "completed" | "failed" | "stopped"
 				lastMessage?: string
 				waitingOn?: string
 				blocked?: boolean

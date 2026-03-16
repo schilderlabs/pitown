@@ -13,6 +13,7 @@ import { peekTownAgent } from "./peek.js"
 import { runTown } from "./run.js"
 import { spawnTownAgent } from "./spawn.js"
 import { showTownStatus } from "./status.js"
+import { stopTown } from "./stop.js"
 import { CLI_VERSION } from "./version.js"
 import { watchTown } from "./watch.js"
 
@@ -27,6 +28,7 @@ export function printHelp(showAdvanced = false) {
 			"  pitown peek [--repo <path>] [agent]",
 			'  pitown msg [--repo <path>] <agent> "message"',
 			"  pitown status [--repo <path>]",
+			"  pitown stop [--repo <path>] [--agent <id>] [--all] [--force]",
 			"  pitown doctor",
 			"  pitown --version",
 			"",
@@ -117,6 +119,9 @@ export function runCli(argv = process.argv.slice(2)) {
 			break
 		case "status":
 			showTownStatus(args)
+			break
+		case "stop":
+			stopTown(args)
 			break
 		case "watch":
 			watchTown(args)

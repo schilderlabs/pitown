@@ -47,6 +47,7 @@
 		"automation",
 		"cli",
 		"orchestration",
+		"pi-package",
 		"pi-town",
 		"pitown"
 	],

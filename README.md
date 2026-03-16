@@ -6,6 +6,12 @@ Multi-agent orchestration layer built on top of [Pi](https://shittycodingagent.a
 
 Pi is the single-agent coding CLI. Pi Town adds multi-agent coordination, persistent sessions, autonomous loops, and durable state.
 
+## Credits
+
+Pi Town is built on top of Pi. Credit to [Mario Zechner](https://github.com/badlogic) and the Pi project for the underlying coding agent runtime Pi Town orchestrates.
+
+Pi Town was also inspired by [Gastown](https://github.com/steveyegge/gastown). Credit to [Steve Yegge](https://github.com/steveyegge) for pushing on multi-agent orchestration ideas that made this project worth exploring.
+
 > **Experimental:** Pi Town is in early development. Not yet recommended for unattended usage without close oversight.
 
 ## Pi Town vs Pi

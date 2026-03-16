@@ -17,10 +17,10 @@ export type FixType =
 
 export type RunMode = "single-pi"
 
-export type AgentStatus = "queued" | "starting" | "running" | "idle" | "blocked" | "completed" | "failed"
+export type AgentStatus = "queued" | "starting" | "running" | "idle" | "blocked" | "completed" | "failed" | "stopped"
 
 export type AgentMailbox = "inbox" | "outbox"
-export type TaskStatus = "queued" | "running" | "blocked" | "completed"
+export type TaskStatus = "queued" | "running" | "blocked" | "completed" | "aborted"
 
 export interface AgentSessionRecord {
 	runtime: "pi"

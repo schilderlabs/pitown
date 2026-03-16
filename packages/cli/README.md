@@ -4,6 +4,12 @@ The installable Pi Town CLI.
 
 Pi Town is an experimental orchestration tool for Pi.
 
+## Credits
+
+Pi Town is built on top of Pi. Credit to [Mario Zechner](https://github.com/badlogic) and the Pi project for the underlying coding agent runtime Pi Town orchestrates.
+
+Pi Town was also inspired by [Gastown](https://github.com/steveyegge/gastown). Credit to [Steve Yegge](https://github.com/steveyegge) for pushing on multi-agent orchestration ideas that made this project worth exploring.
+
 For the full project overview, roadmap, and architecture context, see the main repo:
 
 - https://github.com/schilderlabs/pitown
