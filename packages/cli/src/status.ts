@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import { createRepoSlug, getRepoIdentity, getRepoRoot } from "../../core/src/index.js"
 import { parseCliFlags } from "./config.js"
+import { isDirectExecution } from "./entrypoint.js"
 import {
 	getLatestRunPointerPath,
 	getRepoArtifactsDir,
@@ -106,6 +107,6 @@ export function showTownStatus(argv = process.argv.slice(2)) {
 	console.log(readFileSync(latest.metricsPath, "utf-8").trim())
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectExecution(import.meta.url)) {
 	showTownStatus()
 }

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { isDirectExecution } from "./entrypoint.js"
 import { runTown } from "./run.js"
 import { showTownStatus } from "./status.js"
 import { watchTown } from "./watch.js"
@@ -48,6 +49,6 @@ export function runCli(argv = process.argv.slice(2)) {
 	}
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectExecution(import.meta.url)) {
 	runCli()
 }

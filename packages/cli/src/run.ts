@@ -7,6 +7,7 @@ import {
 	runController,
 	type ControllerRunResult,
 } from "../../core/src/index.js"
+import { isDirectExecution } from "./entrypoint.js"
 import { resolveRunConfig } from "./config.js"
 import {
 	getLatestRunPointerPath,
@@ -92,7 +93,7 @@ export function runTown(argv = process.argv.slice(2)): ControllerRunResult {
 	return result
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectExecution(import.meta.url)) {
 	const result = runTown()
 	if (result.piInvocation.exitCode !== 0) process.exitCode = result.piInvocation.exitCode
 }

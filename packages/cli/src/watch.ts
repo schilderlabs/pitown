@@ -1,4 +1,5 @@
 import { existsSync, watchFile } from "node:fs"
+import { isDirectExecution } from "./entrypoint.js"
 import { getTownHomeDir } from "./paths.js"
 import { resolveLatestRunPointer, showTownStatus } from "./status.js"
 
@@ -22,6 +23,6 @@ export function watchTown(argv = process.argv.slice(2)) {
 	})
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectExecution(import.meta.url)) {
 	watchTown()
 }
