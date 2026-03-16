@@ -1,9 +1,14 @@
 import { spawnSync } from "node:child_process"
-import { readFileSync } from "node:fs"
+import { readFileSync, writeFileSync } from "node:fs"
 import { resolve } from "node:path"
 
 const rootDir = resolve(".")
 const cliPackagePath = resolve("packages/cli/package.json")
+const versionedPackagePaths = [
+	resolve("packages/cli/package.json"),
+	resolve("packages/core/package.json"),
+	resolve("packages/pi-package/package.json"),
+]
 const releaseTags = [
 	{ tagPrefix: "pitown-v", packageName: "@schilderlabs/pitown" },
 	{ tagPrefix: "pitown-core-v", packageName: "@schilderlabs/pitown-core" },
@@ -20,7 +25,7 @@ function run(command, args, options = {}) {
 	})
 
 	if (result.status !== 0) {
-		process.exit(result.status ?? 1)
+		throw new Error(`${rendered} failed with exit code ${result.status ?? 1}`)
 	}
 }
 
@@ -69,6 +74,16 @@ function readCliVersion() {
 	return JSON.parse(readFileSync(cliPackagePath, "utf-8")).version
 }
 
+function snapshotPackageFiles() {
+	return new Map(versionedPackagePaths.map((path) => [path, readFileSync(path, "utf-8")]))
+}
+
+function restorePackageFiles(snapshot) {
+	for (const [path, contents] of snapshot.entries()) {
+		writeFileSync(path, contents, "utf-8")
+	}
+}
+
 function main() {
 	const args = process.argv.slice(2)
 	const bump = args.find((arg) => !arg.startsWith("--"))
@@ -84,38 +99,51 @@ function main() {
 		assertCleanGit()
 	}
 
-	run("node", ["scripts/version-packages.mjs", bump])
-	run("pnpm", ["syncpack:check"])
-	run("pnpm", ["typecheck"])
-	run("pnpm", ["test"])
-	run("pnpm", ["build"])
+	const packageSnapshot = snapshotPackageFiles()
+	let prepared = false
 
-	if (link) {
-		run("pnpm", ["--dir", "packages/cli", "link", "--global"])
+	try {
+		run("node", ["scripts/version-packages.mjs", bump])
+		prepared = true
+		run("pnpm", ["syncpack:check"])
+		run("pnpm", ["typecheck"])
+		run("pnpm", ["test"])
+		run("pnpm", ["build"])
+
+		if (link) {
+			run("pnpm", ["--dir", "packages/cli", "link", "--global"])
+		}
+
+		const version = readCliVersion()
+		console.log(`Prepared Pi Town release v${version}`)
+
+		if (!github) {
+			console.log("GitHub publish skipped. Re-run with --github to commit, tag, and push the package release tags.")
+			return
+		}
+
+		const tags = releaseTags.map(({ tagPrefix }) => `${tagPrefix}${version}`)
+
+		run("git", ["add", "-A"])
+		run("git", ["commit", "-m", `release: v${version}`])
+		prepared = false
+		for (const tag of tags) {
+			run("git", ["tag", tag])
+		}
+		run("git", ["push", "origin", "HEAD", ...tags])
+		console.log(
+			[
+				"Triggered GitHub release workflow for:",
+				...releaseTags.map(({ packageName }, index) => `- ${packageName}: ${tags[index]}`),
+			].join("\n"),
+		)
+	} catch (error) {
+		if (prepared) {
+			restorePackageFiles(packageSnapshot)
+			console.error("Release preparation failed. Restored package versions to their previous state.")
+		}
+		throw error
 	}
-
-	const version = readCliVersion()
-	console.log(`Prepared Pi Town release v${version}`)
-
-	if (!github) {
-		console.log("GitHub publish skipped. Re-run with --github to commit, tag, and push the package release tags.")
-		return
-	}
-
-	const tags = releaseTags.map(({ tagPrefix }) => `${tagPrefix}${version}`)
-
-	run("git", ["add", "-A"])
-	run("git", ["commit", "-m", `release: v${version}`])
-	for (const tag of tags) {
-		run("git", ["tag", tag])
-	}
-	run("git", ["push", "origin", "HEAD", ...tags])
-	console.log(
-		[
-			"Triggered GitHub release workflow for:",
-			...releaseTags.map(({ packageName }, index) => `- ${packageName}: ${tags[index]}`),
-		].join("\n"),
-	)
 }
 
 try {

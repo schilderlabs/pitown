@@ -96,16 +96,21 @@ export function stopTown(argv = process.argv.slice(2)): StopRepoSummary[] {
 	if (flags.all && flags.agentId) throw new Error("Do not combine --all with --agent")
 
 	if (flags.all) {
-		const repoSummaries = listTrackedArtifactsDirs().map((artifactsDir) => ({
-			repoLabel: artifactsDir,
-			...stopManagedAgents({
+		const repoSummaries = listTrackedArtifactsDirs().map((artifactsDir) => {
+			const result = stopManagedAgents({
 				artifactsDir,
 				actorId: "human",
 				reason: "Stopped via pitown stop --all",
 				force: flags.force,
-			}),
-			signaledLeaseProcesses: 0,
-		}))
+			})
+
+			return {
+				repoLabel: artifactsDir,
+				stoppedAgents: result.stoppedAgents,
+				signaledAgentProcesses: result.signaledProcesses,
+				signaledLeaseProcesses: 0,
+			}
+		})
 		const leaseResult = stopRepoLeases({ force: flags.force })
 		const totalAgents = repoSummaries.reduce((sum, result) => sum + result.stoppedAgents, 0)
 		const totalAgentProcesses = repoSummaries.reduce((sum, result) => sum + result.signaledAgentProcesses, 0)
